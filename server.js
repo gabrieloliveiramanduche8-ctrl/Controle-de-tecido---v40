@@ -7,6 +7,9 @@ const app = express();
 const PORT = Number(process.env.PORT || 10000);
 const HOST = '0.0.0.0';
 const ROOT = __dirname;
+const PUBLIC_DIR = path.join(ROOT, 'public');
+const ROOT_INDEX = path.join(ROOT, 'index.html');
+const PUBLIC_INDEX = path.join(PUBLIC_DIR, 'index.html');
 
 app.disable('x-powered-by');
 app.use(express.json({limit:'20mb'}));
@@ -105,7 +108,10 @@ app.post('/api/ai',(req,res)=>{
 });
 app.all('/api/*',(req,res)=>notFound(res));
 
-app.use(express.static(path.join(ROOT,'public'),{extensions:['html']}));
-app.get('*',(req,res)=>res.sendFile(path.join(ROOT,'public','index.html')));
+app.use(express.static(PUBLIC_DIR,{extensions:['html']}));
+app.get('*',(req,res)=>{
+  const index = require('fs').existsSync(PUBLIC_INDEX) ? PUBLIC_INDEX : ROOT_INDEX;
+  res.sendFile(index);
+});
 
 app.listen(PORT,HOST,()=>console.log(`ESTOQUE DE TECIDO PLUS+ V40 ONLINE EM http://${HOST}:${PORT}`));
